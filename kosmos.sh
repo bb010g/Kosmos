@@ -435,11 +435,4 @@ echo "  Lockpick RCM - ${lockpick_rcm_version}"
 echo "  sys-clk - ${sys_clk_version}"
 echo "  sys-ftpd - ${sys_ftpd_version}"
 
-# Local Variables:
-# mode: bash
-# indent-tabs-mode: nil
-# tab-width: 4
-# sh-basic-offset: 4
-# fill-column: 78
-# End:
 # vim:et:sw=4:tw=78
