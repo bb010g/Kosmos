@@ -18,6 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+set -ueo pipefail
+
 func_result=""
 user_agent="Kosmos/1.0.0"
 temp_template='kosmos.XXXXXXXXXX'
@@ -33,42 +35,47 @@ temp_template='kosmos.XXXXXXXXXX'
 # Returns:
 #   The latest release JSON on ${func_result}.
 get_latest_release () {
-    releases=$(curl -H  "Accept: application/json" -H "Content-Type: application/json" -H "User-Agent: ${user_agent}" -s https://api.github.com/repos/${1}/${2}/releases)
-    func_result=$(echo ${releases} | jq -r '.[0]')
+    local releases
+    releases=$(curl -s "https://api.github.com/repos/${1}/${2}/releases" \
+        -H "Accept: application/json" \
+        -H "Content-Type: application/json" \
+        -H "User-Agent: ${user_agent}")
+    func_result=$(jq -r '.[0]' <<< "${releases}")
 }
 
 # Gets the number of assets in a release.
 # Params:
 #   - The release JSON
 # Returns:
-#   The number of assets on ${?}.
+#   The number of assets on stdout.
 get_number_of_assets () {
-    return $(echo ${1} | jq -r '.assets | length')
+    jq -r '.assets | length' <<< "${1}"
 }
 
 # Finds a specific asset in a release.
 # Params:
 #   - The release JSON
-#   - Start with blob pattern
-#   - Ends with blob pattern
+#   - Start with glob pattern
+#   - Ends with glob pattern
 # Returns:
 #   The asset JSON on ${func_result}.
 find_asset () {
-    get_number_of_assets "${1}"
-    number_of_assets=${?}
+    number_of_assets=$(get_number_of_assets "${1}")
 
-    for (( i=0; i<${number_of_assets}; i++ ))
+    for (( i=0; i<"${number_of_assets}"; i++ ))
     do
-        name=$(echo ${1} | jq -r ".assets[${i}].name" | tr '[:upper:]' '[:lower:]')
-        asset=$(echo ${1} | jq -r ".assets[${i}]")
+        name=$(jq -r ".assets[${i}].name" <<< "${1}" | tr '[:upper:]' '[:lower:]')
+        asset=$(jq -r ".assets[${i}]" <<< "${1}")
 
-        if [[ ${#} -eq 2 && ${name} == ${2} ]]
+        # shellcheck disable=SC2053 # $2 documented as glob
+        if [[ ${#} -eq 2 && "${name}" == ${2} ]]
         then
             func_result=${asset}
             break
         fi
 
-        if [[ ${#} -eq 3 && ${name} == ${2} && ${name} == ${3} ]]
+        # shellcheck disable=SC2053 # $2 & $3 documented as globs
+        if [[ ${#} -eq 3 && "${name}" == ${2} && "${name}" == ${3} ]]
         then
             func_result=${asset}
             break
@@ -82,7 +89,7 @@ find_asset () {
 # Returns:
 #   The download URL on ${func_result}.
 get_download_url () {
-    func_result=$(echo ${1} | jq -r ".browser_download_url")
+    func_result=$(jq -r ".browser_download_url" <<< "${1}")
 }
 
 # Downloads a file.
@@ -92,7 +99,7 @@ get_download_url () {
 #   The file path on ${func_result}.
 download_file () {
     func_result=$(mktemp "${temp_template}")
-    curl -L -H "User-Agent: ${user_agent}" -s ${1} >> ${func_result}
+    curl -L -H "User-Agent: ${user_agent}" -s "${1}" -o "${func_result}"
 }
 
 # Gets the version number from an asset.
@@ -101,17 +108,16 @@ download_file () {
 # Returns:
 #   The version number on ${func_result}.
 get_version_number () {
-    func_result=$(echo ${1} | jq -r ".tag_name")
+    func_result=$(jq -r ".tag_name" <<< "${1}")
 }
 
-# Find path matching a pattern
+# First word of the arguments
 # Params:
-#   - The pattern
+#   - One or more arguments
 # Returns:
-#   The first file found on ${func_result}.
-glob () {
-    files=( ${1} )
-    func_result=${files[0]}
+#   - The first argument provided on ${func_result}.
+first () {
+    func_result=${1}
 }
 
 # =============================================================================
@@ -140,7 +146,7 @@ download_atmosphere () {
     download_file "${func_result}"
 
     mkdir -p "${1}/bootloader/payloads"
-    mv ${func_result} "${1}/bootloader/payloads/fusee-primary.bin"
+    mv "${func_result}" "${1}/bootloader/payloads/fusee-primary.bin"
 
     get_version_number "${latest_release}"
 }
@@ -172,7 +178,7 @@ download_hekate () {
 # Params:
 #   - The temp directory
 copy_payload () {
-    glob "${1}/hekate*.bin"
+    first "${1}"/hekate*.bin
     cp "${func_result}" "${1}/bootloader/update.bin"
     cp "${func_result}" "${1}/atmosphere/reboot_payload.bin"
 }
@@ -199,7 +205,7 @@ download_appstore () {
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/appstore"
-    mv ${func_result} "${1}/switch/appstore/appstore.nro"
+    mv "${func_result}" "${1}/switch/appstore/appstore.nro"
 
     get_version_number "${latest_release}"
 }
@@ -243,7 +249,7 @@ download_goldleaf () {
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/Goldleaf"
-    mv ${func_result} "${1}/switch/Goldleaf/Goldleaf.nro"
+    mv "${func_result}" "${1}/switch/Goldleaf/Goldleaf.nro"
 
     get_version_number "${latest_release}"
 }
@@ -287,7 +293,7 @@ download_kosmos_updater () {
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/KosmosUpdater"
-    mv ${func_result} "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
+    mv "${func_result}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" >> "${1}/switch/KosmosUpdater/internal.db"
 
     get_version_number "${latest_release}"
@@ -317,7 +323,7 @@ download_lockpick () {
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/Lockpick"
-    mv ${func_result} "${1}/switch/Lockpick/Lockpick.nro"
+    mv "${func_result}" "${1}/switch/Lockpick/Lockpick.nro"
 
     get_version_number "${latest_release}"
 }
@@ -330,7 +336,7 @@ download_lockpick_rcm () {
     get_download_url "${func_result}"
     download_file "${func_result}"
 
-    mv ${func_result} "${1}/bootloader/payloads/Lockpick_RCM.bin"
+    mv "${func_result}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
 
     get_version_number "${latest_release}"
 }
@@ -430,14 +436,11 @@ download_sys_ftpd "${temp_directory}"
 sys_ftpd_version=${func_result}
 
 # Delete the bundle if it already exists.
-dest=$(realpath -s ${2})
+dest=$(realpath -s "${2}")
 rm -f "${dest}/Kosmos-${1}.zip"
 
 # Bundle everything together.
-current_directory=${PWD}
-cd "${temp_directory}"
-zip -q -r "${dest}/Kosmos-${1}.zip" .
-cd "${current_directory}"
+(cd "${temp_directory}" && zip -q -r "${dest}/Kosmos-${1}.zip" .)
 
 # Clean up.
 rm -rf "${temp_directory}"
