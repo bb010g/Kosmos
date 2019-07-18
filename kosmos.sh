@@ -72,11 +72,11 @@ download_file () {
 
 # Gets the version number from an asset.
 # Params:
-#   - The release asset JSON
+#   - (stdin) The release asset JSON
 # Returns:
-#   The version number on ${func_result}.
+#   The version number on stdout.
 get_version_number () {
-    func_result=$(jq -r ".tag_name" <<< "${1}")
+    jq -r ".tag_name"
 }
 
 # First word of the arguments
@@ -116,7 +116,7 @@ download_atmosphere () {
     mkdir -p "${1}/bootloader/payloads"
     mv "${func_result}" "${1}/bootloader/payloads/fusee-primary.bin"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 # =============================================================================
@@ -139,7 +139,7 @@ download_hekate () {
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${func_result}"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 # Copy the payload to where it needs to be.
@@ -175,7 +175,7 @@ download_appstore () {
     mkdir -p "${1}/switch/appstore"
     mv "${func_result}" "${1}/switch/appstore/appstore.nro"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_edizon () {
@@ -189,7 +189,7 @@ download_edizon () {
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${func_result}"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_emuiibo () {
@@ -205,7 +205,7 @@ download_emuiibo () {
     rm -f "${1}/atmosphere/titles/0100000000000352/flags/boot2.flag"
     rm -f "${func_result}"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_goldleaf () {
@@ -219,7 +219,7 @@ download_goldleaf () {
     mkdir -p "${1}/switch/Goldleaf"
     mv "${func_result}" "${1}/switch/Goldleaf/Goldleaf.nro"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_hid_mitm () {
@@ -234,7 +234,7 @@ download_hid_mitm () {
     rm -f "${1}/atmosphere/titles/0100000000000faf/flags/boot2.flag"
     rm -f "${func_result}"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_kosmos_toolbox () {
@@ -249,7 +249,7 @@ download_kosmos_toolbox () {
     mv "${func_result}" "${1}/switch/KosmosToolbox/KosmosToolbox.nro"
     cp "./Modules/kosmos-toolbox/config.json" "${1}/switch/KosmosToolbox/config.json"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_kosmos_updater () {
@@ -264,7 +264,7 @@ download_kosmos_updater () {
     mv "${func_result}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" >> "${1}/switch/KosmosUpdater/internal.db"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_ldn_mitm () {
@@ -279,7 +279,7 @@ download_ldn_mitm () {
     rm -f "${1}/atmosphere/titles/4200000000000010/flags/boot2.flag"
     rm -f "${func_result}"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_lockpick () {
@@ -293,7 +293,7 @@ download_lockpick () {
     mkdir -p "${1}/switch/Lockpick"
     mv "${func_result}" "${1}/switch/Lockpick/Lockpick.nro"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_lockpick_rcm () {
@@ -306,7 +306,7 @@ download_lockpick_rcm () {
 
     mv "${func_result}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_sys_clk () {
@@ -322,7 +322,7 @@ download_sys_clk () {
     rm -f "${1}/README.html"
     rm -f "${func_result}"
 
-    get_version_number "${releases[$repo]}"
+    func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
 download_sys_ftpd () {
