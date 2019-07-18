@@ -20,6 +20,7 @@
 
 func_result=""
 user_agent="Kosmos/1.0.0"
+temp_template='kosmos.XXXXXXXXXX'
 
 # =============================================================================
 # General Functions
@@ -90,7 +91,7 @@ get_download_url () {
 # Returns:
 #   The file path on ${func_result}.
 download_file () {
-    func_result="/tmp/$(uuidgen)"
+    func_result=$(mktemp "${temp_template}")
     curl -L -H "User-Agent: ${user_agent}" -s ${1} >> ${func_result}
 }
 
@@ -353,7 +354,7 @@ download_sys_clk () {
 download_sys_ftpd () {
     download_file "http://bsnx.lavatech.top/sys-ftpd/sys-ftpd-latest.zip"
 
-    temp_sysftpd_directory="/tmp/$(uuidgen)"
+    temp_sysftpd_directory=$(mktemp -d "${temp_template}")
     mkdir -p "${temp_sysftpd_directory}"
     unzip -qq "${func_result}" -d "${temp_sysftpd_directory}"
     cp -r "${temp_sysftpd_directory}/sd"/* "${1}"
@@ -379,7 +380,7 @@ then
 fi
 
 # Build temp directory
-temp_directory="/tmp/$(uuidgen)"
+temp_directory=$(mktemp -d "${temp_template}")
 mkdir -p "${temp_directory}"
 
 # Start building!
