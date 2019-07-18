@@ -22,7 +22,7 @@ set -ueo pipefail
 
 func_result=""
 user_agent="Kosmos/1.0.0"
-temp_template='kosmos.XXXXXXXXXX'
+temp_template='tmp-kosmos.XXXXXXXXXX'
 declare -A releases
 
 # ============================================================================
@@ -67,7 +67,7 @@ get_download_url () {
 # Returns:
 #   The file path on ${func_result}.
 download_file () {
-    func_result=$(mktemp "${temp_template}")
+    func_result=$(mktemp "${temp_template/./.dl.}")
     curl -L -H "User-Agent: ${user_agent}" -s "${1}" -o "${func_result}"
 }
 
@@ -108,7 +108,7 @@ download_atmosphere () {
 
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${1}/switch/reboot_to_payload.nro"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(find_asset 'fusee.*\.bin' <<< "${releases[$repo]}" \
         | get_download_url)
@@ -138,7 +138,7 @@ download_hekate () {
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -189,7 +189,7 @@ download_edizon () {
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -205,7 +205,7 @@ download_emuiibo () {
     unzip -qq "${func_result}" -d "${1}"
     rm -rf "${1}/ReiNX"
     rm -f "${1}/atmosphere/titles/0100000000000352/flags/boot2.flag"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -234,7 +234,7 @@ download_hid_mitm () {
 
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${1}/atmosphere/titles/0100000000000faf/flags/boot2.flag"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -281,7 +281,7 @@ download_ldn_mitm () {
 
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${1}/atmosphere/titles/4200000000000010/flags/boot2.flag"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -324,7 +324,7 @@ download_sys_clk () {
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${1}/atmosphere/titles/00FF0000636C6BFF/flags/boot2.flag"
     rm -f "${1}/README.html"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -332,13 +332,12 @@ download_sys_clk () {
 download_sys_ftpd () {
     download_file "http://bsnx.lavatech.top/sys-ftpd/sys-ftpd-latest.zip"
 
-    temp_sysftpd_directory=$(mktemp -d "${temp_template}")
-    mkdir -p "${temp_sysftpd_directory}"
+    temp_sysftpd_directory=$(mktemp -d "${temp_template/./.sys_ftpd.}")
     unzip -qq "${func_result}" -d "${temp_sysftpd_directory}"
     cp -r "${temp_sysftpd_directory}/sd"/* "${1}"
     rm -f "${1}/atmosphere/titles/420000000000000E/flags/boot2.flag"
     rm -f "${func_result}"
-    rm -rf "${temp_sysftpd_directory}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -rf "${temp_sysftpd_directory}"
 
     func_result="latest"
 }
@@ -416,7 +415,7 @@ rm -f "${dest}/Kosmos-${1}.zip"
 (cd "${build_dir}" && zip -q -r "${dest}/Kosmos-${1}.zip" .)
 
 # Clean up.
-rm -rf "${TMPDIR}"
+[[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -rf "${TMPDIR}"
 
 # Output some useful information.
 echo "Kosmos ${1} built with:"
