@@ -53,11 +53,11 @@ find_asset () {
 
 # Gets the download URL from an asset.
 # Params:
-#   - The release asset JSON
+#   - (stdin) The release asset JSON
 # Returns:
-#   The download URL on ${func_result}.
+#   The download URL on stdout.
 get_download_url () {
-    func_result=$(jq -r ".browser_download_url" <<< "${1}")
+    jq -r '.browser_download_url'
 }
 
 # Downloads a file.
@@ -101,16 +101,16 @@ download_atmosphere () {
     repo="Atmosphere-NX/Atmosphere"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset 'atmosphere.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'atmosphere.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
     rm -f "${1}/switch/reboot_to_payload.nro"
     rm -f "${func_result}"
 
-    func_result=$(find_asset 'fusee.*\.bin' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'fusee.*\.bin' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mkdir -p "${1}/bootloader/payloads"
@@ -132,8 +132,8 @@ download_hekate () {
     local repo="CTCaer/hekate"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset 'hekate.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'hekate.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
@@ -168,8 +168,8 @@ download_appstore () {
     local repo="vgmoose/hb-appstore"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/appstore"
@@ -182,8 +182,8 @@ download_edizon () {
     local repo="WerWolv/EdiZon"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset '.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset '.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
@@ -196,8 +196,8 @@ download_emuiibo () {
     local repo="XorTroll/emuiibo"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset 'emuiibo.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'emuiibo.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
@@ -212,8 +212,8 @@ download_goldleaf () {
     repo="XorTroll/Goldleaf"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/Goldleaf"
@@ -226,8 +226,8 @@ download_hid_mitm () {
     repo="jakibaki/hid-mitm"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset 'hid.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'hid.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
@@ -241,8 +241,8 @@ download_kosmos_toolbox () {
     repo="AtlasNX/Kosmos-Toolbox"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/KosmosToolbox"
@@ -256,8 +256,8 @@ download_kosmos_updater () {
     repo="AtlasNX/Kosmos-Updater"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/KosmosUpdater"
@@ -271,8 +271,8 @@ download_ldn_mitm () {
     repo="spacemeowx2/ldn_mitm"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset 'ldn_mitm.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'ldn_mitm.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
@@ -286,8 +286,8 @@ download_lockpick () {
     repo="shchmue/Lockpick"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mkdir -p "${1}/switch/Lockpick"
@@ -300,8 +300,8 @@ download_lockpick_rcm () {
     repo="shchmue/Lockpick_RCM"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset ".*\.bin" <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset ".*\.bin" <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     mv "${func_result}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
@@ -313,8 +313,8 @@ download_sys_clk () {
     repo="retronx-team/sys-clk"
     get_latest_release "${repo}"
 
-    func_result=$(find_asset 'sys-clk.*\.zip' <<< "${releases[$repo]}")
-    get_download_url "${func_result}"
+    func_result=$(find_asset 'sys-clk.*\.zip' <<< "${releases[$repo]}" \
+        | get_download_url)
     download_file "${func_result}"
 
     unzip -qq "${func_result}" -d "${1}"
