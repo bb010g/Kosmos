@@ -3,19 +3,19 @@
 # Kosmos
 # Copyright (C) 2019 Steven Mattera
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 #
 
 set -ueo pipefail
@@ -25,9 +25,9 @@ user_agent="Kosmos/1.0.0"
 temp_template='kosmos.XXXXXXXXXX'
 declare -A releases
 
-# =============================================================================
+# ============================================================================
 # General Functions
-# =============================================================================
+# ============================================================================
 
 # Downloads the latest release JSON.
 # Params:
@@ -48,7 +48,8 @@ get_latest_release () {
 # Returns:
 #   The asset JSON on stdout.
 find_asset () {
-    jq --arg regex "${1}" '.assets | map(select(.name | test($regex; "ip"))) | .[0]'
+    jq --arg regex "${1}" \
+        '.assets | map(select(.name | test($regex; "ip"))) | .[0]'
 }
 
 # Gets the download URL from an asset.
@@ -88,9 +89,9 @@ first () {
     func_result=${1}
 }
 
-# =============================================================================
+# ============================================================================
 # Atmosphere Functions
-# =============================================================================
+# ============================================================================
 
 # Downloads the latest Atmosphere release and extracts it.
 # Params:
@@ -119,9 +120,9 @@ download_atmosphere () {
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
 
-# =============================================================================
+# ============================================================================
 # Hekate Functions
-# =============================================================================
+# ============================================================================
 
 # Downloads the latest Hekate release and extracts it.
 # Params:
@@ -157,12 +158,13 @@ copy_payload () {
 #   - The Kosmos version number
 build_hekate_files () {
     cp "./Modules/hekate/bootlogo.bmp" "${1}/bootloader/bootlogo.bmp"
-    sed "s/KOSMOS_VERSION/${2}/g" "./Modules/hekate/hekate_ipl.ini" >> "${1}/bootloader/hekate_ipl.ini"
+    sed "s/KOSMOS_VERSION/${2}/g" "./Modules/hekate/hekate_ipl.ini" \
+        >> "${1}/bootloader/hekate_ipl.ini"
 }
 
-# =============================================================================
+# ============================================================================
 # Homebrew Functions
-# =============================================================================
+# ============================================================================
 
 download_appstore () {
     local repo="vgmoose/hb-appstore"
@@ -247,7 +249,8 @@ download_kosmos_toolbox () {
 
     mkdir -p "${1}/switch/KosmosToolbox"
     mv "${func_result}" "${1}/switch/KosmosToolbox/KosmosToolbox.nro"
-    cp "./Modules/kosmos-toolbox/config.json" "${1}/switch/KosmosToolbox/config.json"
+    cp "./Modules/kosmos-toolbox/config.json" \
+        "${1}/switch/KosmosToolbox/config.json"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -262,7 +265,8 @@ download_kosmos_updater () {
 
     mkdir -p "${1}/switch/KosmosUpdater"
     mv "${func_result}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
-    sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" >> "${1}/switch/KosmosUpdater/internal.db"
+    sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" \
+        >> "${1}/switch/KosmosUpdater/internal.db"
 
     func_result=$(get_version_number <<< "${releases[$repo]}")
 }
@@ -343,9 +347,9 @@ download_sys_ftpd () {
     # Someone needs to update their release to not be a kip... =/
 # }
 
-# =============================================================================
+# ============================================================================
 # Main Script
-# =============================================================================
+# ============================================================================
 
 if [ $# -le 1 ]
 then
@@ -430,3 +434,12 @@ echo "  Lockpick - ${lockpick_version}"
 echo "  Lockpick RCM - ${lockpick_rcm_version}"
 echo "  sys-clk - ${sys_clk_version}"
 echo "  sys-ftpd - ${sys_ftpd_version}"
+
+# Local Variables:
+# mode: bash
+# indent-tabs-mode: nil
+# tab-width: 4
+# sh-basic-offset: 4
+# fill-column: 78
+# End:
+# vim:et:sw=4:tw=78
