@@ -353,54 +353,55 @@ then
     exit 1
 fi
 
+TMPDIR=$(mktemp -d "${temp_template}")
+export TMPDIR
 # Build temp directory
-temp_directory=$(mktemp -d "${temp_template}")
-mkdir -p "${temp_directory}"
+build_dir=$(mktemp -d "${temp_template/./.build.}")
 
 # Start building!
 
-download_atmosphere "${temp_directory}"
+download_atmosphere "${build_dir}"
 atmosphere_version=${func_result}
 
-download_hekate "${temp_directory}"
+download_hekate "${build_dir}"
 hekate_version=${func_result}
-copy_payload "${temp_directory}"
-build_hekate_files "${temp_directory}" "${1}"
+copy_payload "${build_dir}"
+build_hekate_files "${build_dir}" "${1}"
 
-download_appstore "${temp_directory}"
+download_appstore "${build_dir}"
 appstore_version=${func_result}
 
-download_edizon "${temp_directory}"
+download_edizon "${build_dir}"
 edizon_version=${func_result}
 
-download_emuiibo "${temp_directory}"
+download_emuiibo "${build_dir}"
 emuiibo_version=${func_result}
 
-download_goldleaf "${temp_directory}"
+download_goldleaf "${build_dir}"
 goldleaf_version=${func_result}
 
-download_hid_mitm "${temp_directory}"
+download_hid_mitm "${build_dir}"
 hid_mitm_version=${func_result}
 
-download_kosmos_toolbox "${temp_directory}"
+download_kosmos_toolbox "${build_dir}"
 kosmos_toolbox_version=${func_result}
 
-download_kosmos_updater "${temp_directory}" "${1}"
+download_kosmos_updater "${build_dir}" "${1}"
 kosmos_updater_version=${func_result}
 
-download_ldn_mitm "${temp_directory}"
+download_ldn_mitm "${build_dir}"
 ldn_mitm_version=${func_result}
 
-download_lockpick "${temp_directory}"
+download_lockpick "${build_dir}"
 lockpick_version=${func_result}
 
-download_lockpick_rcm "${temp_directory}"
+download_lockpick_rcm "${build_dir}"
 lockpick_rcm_version=${func_result}
 
-download_sys_clk "${temp_directory}"
+download_sys_clk "${build_dir}"
 sys_clk_version=${func_result}
 
-download_sys_ftpd "${temp_directory}"
+download_sys_ftpd "${build_dir}"
 sys_ftpd_version=${func_result}
 
 # Delete the bundle if it already exists.
@@ -408,10 +409,10 @@ dest=$(realpath -s "${2}")
 rm -f "${dest}/Kosmos-${1}.zip"
 
 # Bundle everything together.
-(cd "${temp_directory}" && zip -q -r "${dest}/Kosmos-${1}.zip" .)
+(cd "${build_dir}" && zip -q -r "${dest}/Kosmos-${1}.zip" .)
 
 # Clean up.
-rm -rf "${temp_directory}"
+rm -rf "${TMPDIR}"
 
 # Output some useful information.
 echo "Kosmos ${1} built with:"
