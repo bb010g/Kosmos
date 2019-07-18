@@ -30,13 +30,12 @@ temp_template='kosmos.XXXXXXXXXX'
 
 # Downloads the latest release JSON.
 # Params:
-#   - GitHub Company
-#   - GitHub Repo
+#   - GitHub owner/repo
 # Returns:
 #   The latest release JSON on ${func_result}.
 get_latest_release () {
     local releases
-    releases=$(curl -s "https://api.github.com/repos/${1}/${2}/releases" \
+    releases=$(curl -s "https://api.github.com/repos/${1}/releases" \
         -H "Accept: application/json" \
         -H "Content-Type: application/json" \
         -H "User-Agent: ${user_agent}")
@@ -130,7 +129,7 @@ first () {
 # Returns:
 #   The version number on ${func_result}.
 download_atmosphere () {
-    get_latest_release "Atmosphere-NX" "Atmosphere"
+    get_latest_release "Atmosphere-NX/Atmosphere"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "atmosphere*" "*.zip"
@@ -161,7 +160,7 @@ download_atmosphere () {
 # Returns:
 #   The version number on ${func_result}.
 download_hekate () {
-    get_latest_release "CTCaer" "hekate"
+    get_latest_release "CTCaer/hekate"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "hekate*" "*.zip"
@@ -197,7 +196,7 @@ build_hekate_files () {
 # =============================================================================
 
 download_appstore () {
-    get_latest_release "vgmoose" "hb-appstore"
+    get_latest_release "vgmoose/hb-appstore"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.nro"
@@ -211,7 +210,7 @@ download_appstore () {
 }
 
 download_edizon () {
-    get_latest_release "WerWolv" "EdiZon"
+    get_latest_release "WerWolv/EdiZon"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.zip"
@@ -225,7 +224,7 @@ download_edizon () {
 }
 
 download_emuiibo () {
-    get_latest_release "XorTroll" "emuiibo"
+    get_latest_release "XorTroll/emuiibo"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "emuiibo*" "*.zip"
@@ -241,7 +240,7 @@ download_emuiibo () {
 }
 
 download_goldleaf () {
-    get_latest_release "XorTroll" "Goldleaf"
+    get_latest_release "XorTroll/Goldleaf"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.nro"
@@ -255,7 +254,7 @@ download_goldleaf () {
 }
 
 download_hid_mitm () {
-    get_latest_release "jakibaki" "hid-mitm"
+    get_latest_release "jakibaki/hid-mitm"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "hid*" "*.zip"
@@ -270,7 +269,7 @@ download_hid_mitm () {
 }
 
 download_kosmos_toolbox () {
-    get_latest_release "AtlasNX" "Kosmos-Toolbox"
+    get_latest_release "AtlasNX/Kosmos-Toolbox"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.nro"
@@ -285,7 +284,7 @@ download_kosmos_toolbox () {
 }
 
 download_kosmos_updater () {
-    get_latest_release "AtlasNX" "Kosmos-Updater"
+    get_latest_release "AtlasNX/Kosmos-Updater"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.nro"
@@ -300,7 +299,7 @@ download_kosmos_updater () {
 }
 
 download_ldn_mitm () {
-    get_latest_release "spacemeowx2" "ldn_mitm"
+    get_latest_release "spacemeowx2/ldn_mitm"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "ldn_mitm*" "*.zip"
@@ -315,7 +314,7 @@ download_ldn_mitm () {
 }
 
 download_lockpick () {
-    get_latest_release "shchmue" "Lockpick"
+    get_latest_release "shchmue/Lockpick"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.nro"
@@ -329,7 +328,7 @@ download_lockpick () {
 }
 
 download_lockpick_rcm () {
-    get_latest_release "shchmue" "Lockpick_RCM"
+    get_latest_release "shchmue/Lockpick_RCM"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "*.bin"
@@ -342,7 +341,7 @@ download_lockpick_rcm () {
 }
 
 download_sys_clk () {
-    get_latest_release "retronx-team" "sys-clk"
+    get_latest_release "retronx-team/sys-clk"
     latest_release=${func_result}
 
     find_asset "${latest_release}" "sys-clk*" "*.zip"
