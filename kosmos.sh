@@ -23,38 +23,51 @@ set -ueo pipefail
 func_result=""
 user_agent="Kosmos/1.0.0"
 temp_template='tmp-kosmos.XXXXXXXXXX'
-declare -A releases
+declare -A \
+    releases \
+    repos \
 
 # ============================================================================
 # General Functions
 # ============================================================================
 
+# Finds the currently stored release JSON.
+# Params:
+#   - Resource identifier
+# Returns:
+#   The currently stored release JSON on stdout.
+get_release () {
+    printf '%s\n' "${releases[${1}]}"
+}
+
 # Downloads the latest release JSON.
 # Params:
-#   - GitHub owner/repo
+#   - Resource identifier
 # Returns:
-#   The latest release JSON on ${releases[owner/repo]}.
-get_latest_release () {
-    releases[${1}]=$(curl -s "https://api.github.com/repos/${1}/releases" \
+#   The latest release JSON on ${releases[RESOURCE]}.
+update_release () {
+    local repo
+    repo=${repos[${1}]}
+    releases[${1}]=$(curl -s "https://api.github.com/repos/${repo}/releases" \
         -H "Accept: application/json" \
         -H "Content-Type: application/json" \
         -H "User-Agent: ${user_agent}" | jq -r '.[0]')
 }
 
-# Finds a specific asset in a release.
+# Finds a specific asset in a stored resource's release.
 # Params:
-#   - (stdin) The release JSON
+#   - Resource identifier
 #   - Filename regex
 # Returns:
 #   The asset JSON on stdout.
 find_asset () {
-    jq --arg regex "${1}" \
+    get_release "${1}" | jq --arg regex "${2}" \
         '.assets | map(select(.name | test($regex; "ip"))) | .[0]'
 }
 
 # Gets the download URL from an asset.
 # Params:
-#   - (stdin) The release asset JSON
+#   - (stdin) Release asset JSON
 # Returns:
 #   The download URL on stdout.
 get_download_url () {
@@ -65,33 +78,38 @@ get_download_url () {
 # Params:
 #   - The URL
 # Returns:
-#   The file path on ${func_result}.
+#   The file path on stdout.
 download_file () {
-    func_result=$(mktemp "${temp_template/./.dl.}")
-    curl -L -H "User-Agent: ${user_agent}" -s "${1}" -o "${func_result}"
+    local file
+    file=$(mktemp "${temp_template/./.dl.}")
+    curl -s -L -H "User-Agent: ${user_agent}" "${1}" -o "${file}"
+    printf '%s\n' "${file}"
 }
 
-# Gets the version number from an asset.
+# Download a resource's release asset.
 # Params:
-#   - (stdin) The release asset JSON
+#   - Resource identifier
+#   - Asset filename regex
+# Returns:
+#   The file path on stdout.
+download_asset () {
+    download_file "$(find_asset "${1}" "${2}" | get_download_url)"
+}
+
+# Gets the version number from a release.
+# Params:
+#   - Resource identifier
 # Returns:
 #   The version number on stdout.
-get_version_number () {
-    jq -r ".tag_name"
-}
-
-# First word of the arguments
-# Params:
-#   - One or more arguments
-# Returns:
-#   - The first argument provided on ${func_result}.
-first () {
-    func_result=${1}
+get_release_version () {
+    get_release "${1}" | jq -r ".tag_name"
 }
 
 # ============================================================================
 # Atmosphere Functions
 # ============================================================================
+
+repos[atmosphere]="Atmosphere-NX/Atmosphere"
 
 # Downloads the latest Atmosphere release and extracts it.
 # Params:
@@ -99,30 +117,27 @@ first () {
 # Returns:
 #   The version number on ${func_result}.
 download_atmosphere () {
-    repo="Atmosphere-NX/Atmosphere"
-    get_latest_release "${repo}"
+    update_release atmosphere
 
-    func_result=$(find_asset 'atmosphere.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
+    local file
 
-    unzip -qq "${func_result}" -d "${1}"
+    file=$(download_asset atmosphere 'atmosphere.*\.zip')
+    unzip -qq "${file}" -d "${1}"
     rm -f "${1}/switch/reboot_to_payload.nro"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    func_result=$(find_asset 'fusee.*\.bin' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
+    file=$(download_asset atmosphere 'fusee.*\.bin')
     mkdir -p "${1}/bootloader/payloads"
-    mv "${func_result}" "${1}/bootloader/payloads/fusee-primary.bin"
+    mv "${file}" "${1}/bootloader/payloads/fusee-primary.bin"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version atmosphere)
 }
 
 # ============================================================================
 # Hekate Functions
 # ============================================================================
+
+repos[hekate]="CTCaer/hekate"
 
 # Downloads the latest Hekate release and extracts it.
 # Params:
@@ -130,31 +145,30 @@ download_atmosphere () {
 # Returns:
 #   The version number on ${func_result}.
 download_hekate () {
-    local repo="CTCaer/hekate"
-    get_latest_release "${repo}"
+    update_release hekate
 
-    func_result=$(find_asset 'hekate.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
+    local file
+    file=$(download_asset hekate 'hekate.*\.zip')
+    unzip -qq "${file}" -d "${1}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    unzip -qq "${func_result}" -d "${1}"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
-
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version hekate)
 }
 
 # Copy the payload to where it needs to be.
 # Params:
-#   - The temp directory
-copy_payload () {
-    first "${1}"/hekate*.bin
-    cp "${func_result}" "${1}/bootloader/update.bin"
-    cp "${func_result}" "${1}/atmosphere/reboot_payload.bin"
+#   - The build directory
+copy_hekate_payload () {
+    for file in "${1}"/hekate*.bin; do
+        cp "${file}" "${1}/bootloader/update.bin"
+        cp "${file}" "${1}/atmosphere/reboot_payload.bin"
+        break
+    done
 }
 
 # Builds the hekate files.
 # Params:
-#   - The temp directory
+#   - The build directory
 #   - The Kosmos version number
 build_hekate_files () {
     cp "./Modules/hekate/bootlogo.bmp" "${1}/bootloader/bootlogo.bmp"
@@ -166,177 +180,160 @@ build_hekate_files () {
 # Homebrew Functions
 # ============================================================================
 
+repos[appstore]="vgmoose/hb-appstore"
 download_appstore () {
-    local repo="vgmoose/hb-appstore"
-    get_latest_release "${repo}"
+    update_release appstore
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
+    local file
+    file=$(download_asset appstore '.*\.nro')
     mkdir -p "${1}/switch/appstore"
-    mv "${func_result}" "${1}/switch/appstore/appstore.nro"
+    mv "${file}" "${1}/switch/appstore/appstore.nro"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version appstore)
 }
 
+repos[edizon]="WerWolv/EdiZon"
 download_edizon () {
-    local repo="WerWolv/EdiZon"
-    get_latest_release "${repo}"
+    update_release edizon
 
-    func_result=$(find_asset '.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
+    local file
+    file=$(download_asset edizon '.*\.zip')
+    unzip -qq "${file}" -d "${1}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    unzip -qq "${func_result}" -d "${1}"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
-
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version edizon)
 }
 
+repos[emuiibo]="XorTroll/emuiibo"
 download_emuiibo () {
-    local repo="XorTroll/emuiibo"
-    get_latest_release "${repo}"
+    update_release emuiibo
 
-    func_result=$(find_asset 'emuiibo.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
-    unzip -qq "${func_result}" -d "${1}"
+    local file
+    file=$(download_asset emuiibo 'emuiibo.*\.zip')
+    unzip -qq "${file}" -d "${1}"
     rm -rf "${1}/ReiNX"
     rm -f "${1}/atmosphere/titles/0100000000000352/flags/boot2.flag"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version emuiibo)
 }
 
+repos[goldleaf]="XorTroll/Goldleaf"
 download_goldleaf () {
-    repo="XorTroll/Goldleaf"
-    get_latest_release "${repo}"
+    update_release goldleaf
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
+    local file
+    file=$(download_asset goldleaf '.*\.nro')
     mkdir -p "${1}/switch/Goldleaf"
-    mv "${func_result}" "${1}/switch/Goldleaf/Goldleaf.nro"
+    mv "${file}" "${1}/switch/Goldleaf/Goldleaf.nro"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version goldleaf)
 }
 
+repos[hid_mitm]="jakibaki/hid-mitm"
 download_hid_mitm () {
-    repo="jakibaki/hid-mitm"
-    get_latest_release "${repo}"
+    update_release hid_mitm
 
-    func_result=$(find_asset 'hid.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
-    unzip -qq "${func_result}" -d "${1}"
+    local file
+    file=$(download_asset hid_mitm 'hid.*\.zip')
+    unzip -qq "${file}" -d "${1}"
     rm -f "${1}/atmosphere/titles/0100000000000faf/flags/boot2.flag"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version hid_mitm)
 }
 
+repos[kosmos_toolbox]="AtlasNX/Kosmos-Toolbox"
 download_kosmos_toolbox () {
-    repo="AtlasNX/Kosmos-Toolbox"
-    get_latest_release "${repo}"
+    update_release kosmos_toolbox
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
+    local file
+    file=$(download_asset kosmos_toolbox '.*\.nro')
     mkdir -p "${1}/switch/KosmosToolbox"
-    mv "${func_result}" "${1}/switch/KosmosToolbox/KosmosToolbox.nro"
+    mv "${file}" "${1}/switch/KosmosToolbox/KosmosToolbox.nro"
     cp "./Modules/kosmos-toolbox/config.json" \
         "${1}/switch/KosmosToolbox/config.json"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version kosmos_toolbox)
 }
 
+repos[kosmos_updater]="AtlasNX/Kosmos-Updater"
 download_kosmos_updater () {
-    repo="AtlasNX/Kosmos-Updater"
-    get_latest_release "${repo}"
+    update_release kosmos_updater
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
+    local file
+    file=$(download_asset kosmos_updater '.*\.nro')
     mkdir -p "${1}/switch/KosmosUpdater"
-    mv "${func_result}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
+    mv "${file}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" \
         >> "${1}/switch/KosmosUpdater/internal.db"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version kosmos_updater)
 }
 
+repos[ldn_mitm]="spacemeowx2/ldn_mitm"
 download_ldn_mitm () {
-    repo="spacemeowx2/ldn_mitm"
-    get_latest_release "${repo}"
+    update_release ldn_mitm
 
-    func_result=$(find_asset 'ldn_mitm.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
-    unzip -qq "${func_result}" -d "${1}"
+    local file
+    file=$(download_asset ldn_mitm 'ldn_mitm.*\.zip')
+    unzip -qq "${file}" -d "${1}"
     rm -f "${1}/atmosphere/titles/4200000000000010/flags/boot2.flag"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version ldn_mitm)
 }
 
+repos[lockpick]="shchmue/Lockpick"
 download_lockpick () {
-    repo="shchmue/Lockpick"
-    get_latest_release "${repo}"
+    update_release lockpick
 
-    func_result=$(find_asset '.*\.nro' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
+    local file
+    file=$(download_asset lockpick '.*\.nro')
     mkdir -p "${1}/switch/Lockpick"
-    mv "${func_result}" "${1}/switch/Lockpick/Lockpick.nro"
+    mv "${file}" "${1}/switch/Lockpick/Lockpick.nro"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version lockpick)
 }
 
+repos[lockpick_rcm]="shchmue/Lockpick_RCM"
 download_lockpick_rcm () {
-    repo="shchmue/Lockpick_RCM"
-    get_latest_release "${repo}"
+    update_release lockpick_rcm
 
-    func_result=$(find_asset ".*\.bin" <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
+    local file
+    file=$(download_asset lockpick_rcm ".*\.bin")
+    mv "${file}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
 
-    mv "${func_result}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
-
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version lockpick_rcm)
 }
 
+repos[sys_clk]="retronx-team/sys-clk"
 download_sys_clk () {
-    repo="retronx-team/sys-clk"
-    get_latest_release "${repo}"
+    update_release sys_clk
 
-    func_result=$(find_asset 'sys-clk.*\.zip' <<< "${releases[$repo]}" \
-        | get_download_url)
-    download_file "${func_result}"
-
-    unzip -qq "${func_result}" -d "${1}"
+    local file
+    file=$(download_asset sys_clk 'sys-clk.*\.zip')
+    unzip -qq "${file}" -d "${1}"
     rm -f "${1}/atmosphere/titles/00FF0000636C6BFF/flags/boot2.flag"
     rm -f "${1}/README.html"
-    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
 
-    func_result=$(get_version_number <<< "${releases[$repo]}")
+    func_result=$(get_release_version sys_clk)
 }
 
+# TODO version off of Jenkins?
+# https://jenkins.lavatech.top/job/sys-ftpd/
 download_sys_ftpd () {
-    download_file "http://bsnx.lavatech.top/sys-ftpd/sys-ftpd-latest.zip"
+    local file
+    file=$(download_file \
+        "https://bsnx.lavatech.top/sys-ftpd/sys-ftpd-latest.zip")
 
+    local temp_sysftpd_directory
     temp_sysftpd_directory=$(mktemp -d "${temp_template/./.sys_ftpd.}")
-    unzip -qq "${func_result}" -d "${temp_sysftpd_directory}"
+    unzip -qq "${file}" -d "${temp_sysftpd_directory}"
     cp -r "${temp_sysftpd_directory}/sd"/* "${1}"
     rm -f "${1}/atmosphere/titles/420000000000000E/flags/boot2.flag"
-    rm -f "${func_result}"
+    [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -rf "${temp_sysftpd_directory}"
 
     func_result="latest"
@@ -358,7 +355,7 @@ fi
 
 TMPDIR=$(mktemp -d "${temp_template}")
 export TMPDIR
-# Build temp directory
+# Temporary build directory
 build_dir=$(mktemp -d "${temp_template/./.build.}")
 
 # Start building!
@@ -368,7 +365,7 @@ atmosphere_version=${func_result}
 
 download_hekate "${build_dir}"
 hekate_version=${func_result}
-copy_payload "${build_dir}"
+copy_hekate_payload "${build_dir}"
 build_hekate_files "${build_dir}" "${1}"
 
 download_appstore "${build_dir}"
