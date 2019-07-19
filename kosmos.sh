@@ -20,7 +20,6 @@
 
 set -ueo pipefail
 
-func_result=""
 user_agent="Kosmos/1.0.0"
 temp_template='tmp-kosmos.XXXXXXXXXX'
 declare -A \
@@ -129,8 +128,6 @@ download_atmosphere () {
     file=$(download_asset atmosphere 'fusee.*\.bin')
     mkdir -p "${1}/bootloader/payloads"
     mv "${file}" "${1}/bootloader/payloads/fusee-primary.bin"
-
-    func_result=$(get_release_version atmosphere)
 }
 
 # ============================================================================
@@ -142,8 +139,6 @@ repos[hekate]="CTCaer/hekate"
 # Downloads the latest Hekate release and extracts it.
 # Params:
 #   - Directory to extract to
-# Returns:
-#   The version number on ${func_result}.
 download_hekate () {
     update_release hekate
 
@@ -151,8 +146,6 @@ download_hekate () {
     file=$(download_asset hekate 'hekate.*\.zip')
     unzip -qq "${file}" -d "${1}"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
-
-    func_result=$(get_release_version hekate)
 }
 
 # Copy the payload to where it needs to be.
@@ -188,8 +181,6 @@ download_appstore () {
     file=$(download_asset appstore '.*\.nro')
     mkdir -p "${1}/switch/appstore"
     mv "${file}" "${1}/switch/appstore/appstore.nro"
-
-    func_result=$(get_release_version appstore)
 }
 
 repos[edizon]="WerWolv/EdiZon"
@@ -200,8 +191,6 @@ download_edizon () {
     file=$(download_asset edizon '.*\.zip')
     unzip -qq "${file}" -d "${1}"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
-
-    func_result=$(get_release_version edizon)
 }
 
 repos[emuiibo]="XorTroll/emuiibo"
@@ -214,8 +203,6 @@ download_emuiibo () {
     rm -rf "${1}/ReiNX"
     rm -f "${1}/atmosphere/titles/0100000000000352/flags/boot2.flag"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
-
-    func_result=$(get_release_version emuiibo)
 }
 
 repos[goldleaf]="XorTroll/Goldleaf"
@@ -226,8 +213,6 @@ download_goldleaf () {
     file=$(download_asset goldleaf '.*\.nro')
     mkdir -p "${1}/switch/Goldleaf"
     mv "${file}" "${1}/switch/Goldleaf/Goldleaf.nro"
-
-    func_result=$(get_release_version goldleaf)
 }
 
 repos[hid_mitm]="jakibaki/hid-mitm"
@@ -239,8 +224,6 @@ download_hid_mitm () {
     unzip -qq "${file}" -d "${1}"
     rm -f "${1}/atmosphere/titles/0100000000000faf/flags/boot2.flag"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
-
-    func_result=$(get_release_version hid_mitm)
 }
 
 repos[kosmos_toolbox]="AtlasNX/Kosmos-Toolbox"
@@ -253,8 +236,6 @@ download_kosmos_toolbox () {
     mv "${file}" "${1}/switch/KosmosToolbox/KosmosToolbox.nro"
     cp "./Modules/kosmos-toolbox/config.json" \
         "${1}/switch/KosmosToolbox/config.json"
-
-    func_result=$(get_release_version kosmos_toolbox)
 }
 
 repos[kosmos_updater]="AtlasNX/Kosmos-Updater"
@@ -267,8 +248,6 @@ download_kosmos_updater () {
     mv "${file}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" \
         >> "${1}/switch/KosmosUpdater/internal.db"
-
-    func_result=$(get_release_version kosmos_updater)
 }
 
 repos[ldn_mitm]="spacemeowx2/ldn_mitm"
@@ -280,8 +259,6 @@ download_ldn_mitm () {
     unzip -qq "${file}" -d "${1}"
     rm -f "${1}/atmosphere/titles/4200000000000010/flags/boot2.flag"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
-
-    func_result=$(get_release_version ldn_mitm)
 }
 
 repos[lockpick]="shchmue/Lockpick"
@@ -292,8 +269,6 @@ download_lockpick () {
     file=$(download_asset lockpick '.*\.nro')
     mkdir -p "${1}/switch/Lockpick"
     mv "${file}" "${1}/switch/Lockpick/Lockpick.nro"
-
-    func_result=$(get_release_version lockpick)
 }
 
 repos[lockpick_rcm]="shchmue/Lockpick_RCM"
@@ -303,8 +278,6 @@ download_lockpick_rcm () {
     local file
     file=$(download_asset lockpick_rcm ".*\.bin")
     mv "${file}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
-
-    func_result=$(get_release_version lockpick_rcm)
 }
 
 repos[sys_clk]="retronx-team/sys-clk"
@@ -317,8 +290,6 @@ download_sys_clk () {
     rm -f "${1}/atmosphere/titles/00FF0000636C6BFF/flags/boot2.flag"
     rm -f "${1}/README.html"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
-
-    func_result=$(get_release_version sys_clk)
 }
 
 # TODO version off of Jenkins?
@@ -335,8 +306,6 @@ download_sys_ftpd () {
     rm -f "${1}/atmosphere/titles/420000000000000E/flags/boot2.flag"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -f "${file}"
     [[ -z "${KOSMOS_LEAVE_TMP:-}" ]] && rm -rf "${temp_sysftpd_directory}"
-
-    func_result="latest"
 }
 
 # download_sys_netcheat () {
@@ -361,48 +330,49 @@ build_dir=$(mktemp -d "${temp_template/./.build.}")
 # Start building!
 
 download_atmosphere "${build_dir}"
-atmosphere_version=${func_result}
+atmosphere_version=$(get_release_version atmosphere)
 
 download_hekate "${build_dir}"
-hekate_version=${func_result}
+hekate_version=$(get_release_version hekate)
 copy_hekate_payload "${build_dir}"
 build_hekate_files "${build_dir}" "${1}"
 
 download_appstore "${build_dir}"
-appstore_version=${func_result}
+appstore_version=$(get_release_version appstore)
 
 download_edizon "${build_dir}"
-edizon_version=${func_result}
+edizon_version=$(get_release_version edizon)
 
 download_emuiibo "${build_dir}"
-emuiibo_version=${func_result}
+emuiibo_version=$(get_release_version emuiibo)
 
 download_goldleaf "${build_dir}"
-goldleaf_version=${func_result}
+goldleaf_version=$(get_release_version goldleaf)
 
 download_hid_mitm "${build_dir}"
-hid_mitm_version=${func_result}
+hid_mitm_version=$(get_release_version hid_mitm)
 
 download_kosmos_toolbox "${build_dir}"
-kosmos_toolbox_version=${func_result}
+kosmos_toolbox_version=$(get_release_version kosmos_toolbox)
 
 download_kosmos_updater "${build_dir}" "${1}"
-kosmos_updater_version=${func_result}
+kosmos_updater_version=$(get_release_version kosmos_updater)
 
 download_ldn_mitm "${build_dir}"
-ldn_mitm_version=${func_result}
+ldn_mitm_version=$(get_release_version ldn_mitm)
 
 download_lockpick "${build_dir}"
-lockpick_version=${func_result}
+lockpick_version=$(get_release_version lockpick)
 
 download_lockpick_rcm "${build_dir}"
-lockpick_rcm_version=${func_result}
+lockpick_rcm_version=$(get_release_version lockpick_rcm)
 
 download_sys_clk "${build_dir}"
-sys_clk_version=${func_result}
+sys_clk_version=$(get_release_version sys_clk)
 
+# TODO query versions
 download_sys_ftpd "${build_dir}"
-sys_ftpd_version=${func_result}
+sys_ftpd_version="latest"
 
 # Delete the bundle if it already exists.
 dest=$(realpath -s "${2}")
