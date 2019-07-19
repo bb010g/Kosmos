@@ -39,20 +39,18 @@ declare user_agent="Kosmos/1.0.0"
 # General Functions
 # ============================================================================
 
+# declare_release RESOURCE OWNER/REPO
+#
 # Set up GitHub release storage for a resource.
-# Params:
-#   - Resource identifier
-#   - Github owner/repo
 declare_release() {
     repos[${1}]=$2
     declare -gA "assets_${1}"
 }
 
-# Downloads a release's latest JSON.
-# Params:
-#   - Resource identifier
-# Returns:
-#   The latest release JSON on ${releases[RESOURCE]}.
+# get_release RESOURCE
+#
+# Downloads a GitHub release's latest JSON.
+# Returns the latest release JSON on ${releases[RESOURCE]}.
 update_release () {
     local repo
     repo=${repos[${1}]}
@@ -63,12 +61,11 @@ update_release () {
     declare -gA "assets_${1}=()"
 }
 
+# get_release [-u] RESOURCE
+#   -u: update if necessary
+#
 # Looks up a stored release's JSON.
-# Params:
-#   - (optional) -u: update if necessary
-#   - Resource identifier
-# Returns:
-#   The currently stored release JSON on ${REPLY}.
+# Returns the currently stored release JSON on ${REPLY}.
 get_release () {
     if [[ "${1}" == '-u' ]]; then shift
         if [[ -z "${releases[${1}]:+s}" ]]; then update_release "${1}"; fi
@@ -76,13 +73,11 @@ get_release () {
     REPLY=${releases[${1}]}
 }
 
+# find_asset_name [-u] RESOURCE FILENAME_REGEX
+#   -u: update if necessary
+#
 # Finds a specific stored release's asset's name with a regex.
-# Params:
-#   - (optional) -u: update if necessary
-#   - Resource identifier
-#   - Asset file name regex
-# Returns:
-#   The asset file name on stdout.
+# Returns the asset's filename on stdout.
 find_asset_name () {
     local u; u=(); if [[ "${1}" == '-u' ]]; then shift; u=(-u); fi
     local asset name
@@ -93,13 +88,11 @@ find_asset_name () {
     printf '%s\n' "${name}"
 }
 
+# get_asset_meta [-u] RESOURCE FILENAME
+#   -u: update if necessary
+#
 # Looks up a specific stored release's asset's metadata.
-# Params:
-#   - (optional) -u: update if necessary
-#   - Resource identifier
-#   - Asset file name
-# Returns:
-#   The asset metadata on stdout.
+# Returns the asset's metadata on stdout.
 get_asset_meta () {
     local u; u=(); if [[ "${1}" == '-u' ]]; then shift; u=(-u); fi
     local asset="assets_${1}[\${2}]"
@@ -111,13 +104,10 @@ get_asset_meta () {
     printf '%s\n' "${!asset}"
 }
 
+# download_file RESOURCE URL [FILENAME]
+#
 # Downloads a file as an asset.
-# Params:
-#   - Resource identifier
-#   - URL
-#   - (optional) Asset file name
-# Returns:
-#   The file path on stdout.
+# Returns the file's path on stdout.
 download_file () {
     local filename out_opts
     if [[ -n "${3:+s}" ]]; then out_opts=(-o "${3}"); else out_opts=(-O); fi
@@ -129,24 +119,20 @@ download_file () {
     printf '%s\n' "${bld}/assets/${1}/${filename}"
 }
 
+# update_asset RESOURCE FILENAME
+#
 # Downloads a resource's release asset.
-# Params:
-#   - Resource identifier
-#   - Asset file name
-# Returns:
-#   The file path on stdout.
+# Returns the asset's path on stdout.
 update_asset () {
     download_file "${1}" "$(get_asset_meta -u "${1}" "${2}" \
         | jq -r '.browser_download_url')" "${2}"
 }
 
+# get_asset [-u] RESOURCE FILENAME
+#   -u: update if necessary
+#
 # Looks up a resource's release asset.
-# Params:
-#   - (optional) -u: update if necessary
-#   - Resource identifier
-#   - Asset file name
-# Returns:
-#   The file path on stdout.
+# Returns the asset's path on stdout.
 get_asset () {
     local u; if [[ "${1}" == '-u' ]]; then shift; u=1; fi
     local file="${bld}/assets/${1}/${2}"
@@ -156,13 +142,10 @@ get_asset () {
     printf '%s\n' "${file}"
 }
 
+# find_asset [-u] RESOURCE FILENAME_REGEX
+#   -u: update if necessary
 # Looks up a resources's release asset with a regex.
-# Params:
-#   - (optional) -u: update if necessary
-#   - Resource identifier
-#   - Asset file name regex
-# Returns:
-#   The asset file name on stdout.
+# Returns the asset's path on stdout.
 find_asset () {
     local u; u=(); if [[ "${1}" == '-u' ]]; then shift; u=(-u); fi
     local asset
@@ -170,12 +153,10 @@ find_asset () {
     get_asset "${u[@]}" "${1}" "${asset}"
 }
 
+# get_release_version [-u] RESOURCE
+#   -u: update if necessary
 # Gets the version number from a release.
-# Params:
-#   - (optional) -u: update if necessary
-#   - Resource identifier
-# Returns:
-#   The version number on stdout.
+# Returns the version number on stdout.
 get_release_version () {
     local u; u=(); if [[ "${1}" == '-u' ]]; then shift; u=(-u); fi
     get_release "${u[@]}" "${1}" | jq -r ".tag_name"
@@ -223,9 +204,9 @@ copy_hekate_payload () {
     done
 }
 
+# build_hekate_files KOSMOS_VERSION
+#
 # Builds the hekate files.
-# Params:
-#   - The Kosmos version number
 build_hekate_files () {
     cp "./Modules/hekate/bootlogo.bmp" \
         "${bld}/bundle/bootloader/bootlogo.bmp"
