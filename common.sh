@@ -3,24 +3,23 @@
 # Kosmos
 # Copyright (C) 2019 Steven Mattera
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-# =============================================================================
+# ============================================================================
 # General Functions
-# =============================================================================
+# ============================================================================
 
 # Test username and password against GitHub's API
 # Params:
@@ -28,7 +27,13 @@
 # Returns:
 #   Whether it worked or not.
 test_login () {
-    response=$(curl -u ${1} -H  "Accept: application/json" -H "Content-Type: application/json" -H "User-Agent: Kosmos/1.0.0" -s https://api.github.com/)
+    response=$( \
+        curl -s -H "User-Agent: Kosmos/1.0.0" \
+            -u ${1} \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            https://api.github.com/ \
+    )
     message_index=$(echo ${response} | jq 'keys | index("message")')
     if [ "${message_index}" == "null" ]
     then
@@ -46,11 +51,25 @@ test_login () {
 # Returns:
 #   The latest release JSON.
 get_latest_release () {
-    if [ -z "${1}" ] 
+    if [ -z "${1}" ]
     then
-        echo $(curl -H "Accept: application/json" -H "Content-Type: application/json" -H "User-Agent: Kosmos/1.0.0" -s https://api.github.com/repos/${2}/${3}/releases | jq -r '.[0]')
+        echo $( \
+            curl -s -H "User-Agent: Kosmos/1.0.0" \
+                -u ${1} \
+                -H "Content-Type: application/json" \
+                -H "Accept: application/json" \
+                https://api.github.com/repos/${2}/${3}/releases | \
+            jq -r '.[0]' \
+        )
     else
-        echo $(curl -u ${1} -H "Accept: application/json" -H "Content-Type: application/json" -H "User-Agent: Kosmos/1.0.0" -s https://api.github.com/repos/${2}/${3}/releases | jq -r '.[0]')
+        echo $( \
+            curl -s -H "User-Agent: Kosmos/1.0.0" \
+                -u ${1} \
+                -H "Content-Type: application/json" \
+                -H "Accept: application/json" \
+                https://api.github.com/repos/${2}/${3}/releases | \
+            jq -r '.[0]' \
+        )
     fi
 }
 
@@ -110,7 +129,7 @@ download_file () {
 #   The file path.
 download_file_url () {
     file="/tmp/$(uuidgen)"
-    curl -L -H "User-Agent: ${user_agent}" -s ${1} >> ${file}
+    curl -s -H "User-Agent: ${user_agent}" -L ${1} >> ${file}
     echo ${file}
 }
 
@@ -133,13 +152,15 @@ glob () {
     echo ${files[0]}
 }
 
-# =============================================================================
+# ============================================================================
 # Main Script
-# =============================================================================
+# ============================================================================
 
 if [ $# -le 1 ]
 then
-    echo "This is not meant to be called by end users and is used by the kosmos.sh and sdsetup.sh scripts."
+    printf '%s\n' "\
+This is not meant to be called by end users, \
+but instead by the kosmos.sh and sdsetup.sh scripts."
     exit 1
 fi
 
@@ -153,3 +174,12 @@ else
   echo "'$1' is not a known function name" >&2
   exit 1
 fi
+
+# Local Variables:
+# mode: bash
+# indent-tabs-mode: nil
+# tab-width: 4
+# sh-basic-offset: 4
+# fill-column: 78
+# End:
+# vim:et:sw=4:tw=78

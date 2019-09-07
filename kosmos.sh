@@ -3,20 +3,19 @@
 # Kosmos
 # Copyright (C) 2019 Steven Mattera
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 func_result=""
 
@@ -24,11 +23,12 @@ func_result=""
 # Returns:
 #   The username and password on ${func_result}.
 prompt_login () {
-    echo "It is recommended that you login to GitHub to use this tool. However you"
-    echo "can continue without logging in, but you may run into rate limits. If you"
-    echo "use two-factor authentication then you will need to generate a personal"
-    echo "access token and use it as your password. https://github.com/settings/tokens"
-    echo ""
+    printf '%s\n\n' "\
+It is recommended that you login to GitHub to use this tool. However you \
+can continue without logging in, but you may run into rate limits. If you \
+use two-factor authentication then you will need to generate a personal \
+access token and use it as your password. https://github.com/settings/tokens"
+
     read -p "Username: (Leave blank to continue without logging in) " username
 
     if [ ! -z "${username}" ]
@@ -40,9 +40,9 @@ prompt_login () {
     fi
 }
 
-# =============================================================================
+# ============================================================================
 # Main Script
-# =============================================================================
+# ============================================================================
 
 if [ $# -le 0 ]
 then
@@ -74,20 +74,34 @@ temp_directory="/tmp/$(uuidgen)"
 mkdir -p "${temp_directory}"
 
 # Start building!
-atmosphere_version=$(./modules.sh download_atmosphere "${temp_directory}" "${username_password}")
-hekate_version=$(./modules.sh download_hekate "${temp_directory}" "${version_number}" "${username_password}")
-appstore_version=$(./modules.sh download_appstore "${temp_directory}" "${username_password}")
-edizon_version=$(./modules.sh download_edizon "${temp_directory}" "${username_password}")
-emuiibo_version=$(./modules.sh download_emuiibo "${temp_directory}" "${username_password}")
-goldleaf_version=$(./modules.sh download_goldleaf "${temp_directory}" "${username_password}")
-hid_mitm_version=$(./modules.sh download_hid_mitm "${temp_directory}" "${username_password}")
-kosmos_toolbox_version=$(./modules.sh download_kosmos_toolbox "${temp_directory}" "${username_password}")
-kosmos_updater_version=$(./modules.sh download_kosmos_updater "${temp_directory}" "${version_number}" "${username_password}")
-ldn_mitm_version=$(./modules.sh download_ldn_mitm "${temp_directory}" "${username_password}")
-lockpick_version=$(./modules.sh download_lockpick "${temp_directory}" "${username_password}")
-lockpick_rcm_version=$(./modules.sh download_lockpick_rcm "${temp_directory}" "${username_password}")
-sys_clk_version=$(./modules.sh download_sys_clk "${temp_directory}" "${username_password}")
-sys_ftpd_version=$(./modules.sh download_sys_ftpd "${temp_directory}" "${username_password}")
+atmosphere_version=$(./modules.sh download_atmosphere \
+    "${temp_directory}" "${username_password}")
+hekate_version=$(./modules.sh download_hekate \
+    "${temp_directory}" "${version_number}" "${username_password}")
+appstore_version=$(./modules.sh download_appstore \
+    "${temp_directory}" "${username_password}")
+edizon_version=$(./modules.sh download_edizon \
+    "${temp_directory}" "${username_password}")
+emuiibo_version=$(./modules.sh download_emuiibo \
+    "${temp_directory}" "${username_password}")
+goldleaf_version=$(./modules.sh download_goldleaf \
+    "${temp_directory}" "${username_password}")
+hid_mitm_version=$(./modules.sh download_hid_mitm \
+    "${temp_directory}" "${username_password}")
+kosmos_toolbox_version=$(./modules.sh download_kosmos_toolbox \
+    "${temp_directory}" "${username_password}")
+kosmos_updater_version=$(./modules.sh download_kosmos_updater \
+    "${temp_directory}" "${version_number}" "${username_password}")
+ldn_mitm_version=$(./modules.sh download_ldn_mitm \
+    "${temp_directory}" "${username_password}")
+lockpick_version=$(./modules.sh download_lockpick \
+    "${temp_directory}" "${username_password}")
+lockpick_rcm_version=$(./modules.sh download_lockpick_rcm \
+    "${temp_directory}" "${username_password}")
+sys_clk_version=$(./modules.sh download_sys_clk \
+    "${temp_directory}" "${username_password}")
+sys_ftpd_version=$(./modules.sh download_sys_ftpd \
+    "${temp_directory}" "${username_password}")
 
 # Delete the bundle if it already exists.
 dest=$(realpath -s ${1})
@@ -118,3 +132,12 @@ echo "  Lockpick - ${lockpick_version}"
 echo "  Lockpick RCM - ${lockpick_rcm_version}"
 echo "  sys-clk - ${sys_clk_version}"
 echo "  sys-ftpd - ${sys_ftpd_version}"
+
+# Local Variables:
+# mode: bash
+# indent-tabs-mode: nil
+# tab-width: 4
+# sh-basic-offset: 4
+# fill-column: 78
+# End:
+# vim:et:sw=4:tw=78
