@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Kosmos
 # Copyright (C) 2019 Steven Mattera
