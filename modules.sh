@@ -67,10 +67,11 @@ download_hekate () {
     unzip -qq "${file}" -d "${1}"
     rm -f "${file}"
 
-    payload=$(./common.sh first "${1}"/hekate*.bin)
-    cp "${payload}" "${1}/bootloader/update.bin"
+    payload=("${1}"/hekate*.bin)
+    first_payload=${payload[0]}
+    cp "${first_payload}" "${1}/bootloader/update.bin"
     mkdir -p "${1}/atmosphere"
-    cp "${payload}" "${1}/atmosphere/reboot_payload.bin"
+    cp "${first_payload}" "${1}/atmosphere/reboot_payload.bin"
 
     cp "./Modules/hekate/bootlogo.bmp" "${1}/bootloader/bootlogo.bmp"
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/hekate/hekate_ipl.ini" \

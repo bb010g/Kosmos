@@ -140,19 +140,6 @@ get_version_number () {
     echo "${1}" | jq -r ".tag_name"
 }
 
-# First argument of the command.
-# Params:
-#   - Any number of arguments...
-# Returns:
-#   The first argument if provided, or nothing with an error of 1.
-first () {
-    if [[ -v 1 ]]; then
-        printf '%s\n' "${1}"
-    else
-        return 1
-    fi
-}
-
 # ============================================================================
 # Main Script
 # ============================================================================
