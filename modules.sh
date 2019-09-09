@@ -24,7 +24,7 @@
 # Returns:
 #   The version number.
 download_atmosphere () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(\
         ./common.sh get_latest_release "${2}" "Atmosphere-NX" "Atmosphere" \
     )
@@ -40,12 +40,12 @@ download_atmosphere () {
     file=$(./common.sh download_file "${asset}")
 
     mkdir -p "${1}/bootloader/payloads"
-    mv ${file} "${1}/bootloader/payloads/fusee-primary.bin"
+    mv "${file}" "${1}/bootloader/payloads/fusee-primary.bin"
     rm -f "${1}/atmosphere/system_settings.ini"
     cp "./Modules/atmosphere/system_settings.ini" \
         "${1}/atmosphere/system_settings.ini"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 # Downloads the latest Hekate release and extracts it.
@@ -56,7 +56,7 @@ download_atmosphere () {
 # Returns:
 #   The version number.
 download_hekate () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${3}" "CTCaer" "hekate")
 
     asset=$(./common.sh find_asset "${latest_release}" "hekate*" "*.zip")
@@ -74,11 +74,11 @@ download_hekate () {
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/hekate/hekate_ipl.ini" \
         >> "${1}/bootloader/hekate_ipl.ini"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_appstore () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" \
         "vgmoose" "hb-appstore")
 
@@ -86,13 +86,13 @@ download_appstore () {
     file=$(./common.sh download_file "${asset}")
 
     mkdir -p "${1}/switch/appstore"
-    mv ${file} "${1}/switch/appstore/appstore.nro"
+    mv "${file}" "${1}/switch/appstore/appstore.nro"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_edizon () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" "WerWolv" "EdiZon")
 
     asset=$(./common.sh find_asset "${latest_release}" "*.zip")
@@ -101,11 +101,11 @@ download_edizon () {
     unzip -qq "${file}" -d "${1}"
     rm -f "${file}"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_emuiibo () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" "XorTroll" "emuiibo")
 
     asset=$(./common.sh find_asset "${latest_release}" "emuiibo*" "*.zip")
@@ -118,24 +118,24 @@ download_emuiibo () {
     mv "${1}/titles/0100000000000352" "${1}/atmosphere/titles/"
     rm -rf "${1}/titles"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_goldleaf () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" "XorTroll" "Goldleaf")
 
     asset=$(./common.sh find_asset "${latest_release}" "*.nro")
     file=$(./common.sh download_file "${asset}")
 
     mkdir -p "${1}/switch/Goldleaf"
-    mv ${file} "${1}/switch/Goldleaf/Goldleaf.nro"
+    mv "${file}" "${1}/switch/Goldleaf/Goldleaf.nro"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_hid_mitm () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" "jakibaki" "hid-mitm")
 
     asset=$(./common.sh find_asset "${latest_release}" "hid*" "*.zip")
@@ -145,11 +145,11 @@ download_hid_mitm () {
     rm -f "${1}/atmosphere/titles/0100000000000faf/flags/boot2.flag"
     rm -f "${file}"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_kosmos_toolbox () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" \
         "AtlasNX" "Kosmos-Toolbox")
 
@@ -161,11 +161,11 @@ download_kosmos_toolbox () {
     cp "./Modules/kosmos-toolbox/config.json" \
         "${1}/switch/KosmosToolbox/config.json"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_kosmos_updater () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${3}" \
         "AtlasNX" "Kosmos-Updater")
 
@@ -173,15 +173,15 @@ download_kosmos_updater () {
     file=$(./common.sh download_file "${asset}")
 
     mkdir -p "${1}/switch/KosmosUpdater"
-    mv ${file} "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
+    mv "${file}" "${1}/switch/KosmosUpdater/KosmosUpdater.nro"
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" \
         >> "${1}/switch/KosmosUpdater/internal.db"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_ldn_mitm () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" \
         "spacemeowx2" "ldn_mitm")
 
@@ -192,24 +192,24 @@ download_ldn_mitm () {
     rm -f "${1}/atmosphere/titles/4200000000000010/flags/boot2.flag"
     rm -f "${file}"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_lockpick () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" "shchmue" "Lockpick")
 
     asset=$(./common.sh find_asset "${latest_release}" "*.nro")
     file=$(./common.sh download_file "${asset}")
 
     mkdir -p "${1}/switch/Lockpick"
-    mv ${file} "${1}/switch/Lockpick/Lockpick.nro"
+    mv "${file}" "${1}/switch/Lockpick/Lockpick.nro"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_lockpick_rcm () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" \
         "shchmue" "Lockpick_RCM")
 
@@ -217,13 +217,13 @@ download_lockpick_rcm () {
     file=$(./common.sh download_file "${asset}")
 
     mkdir -p "${1}/bootloader/payloads"
-    mv ${file} "${1}/bootloader/payloads/Lockpick_RCM.bin"
+    mv "${file}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_sys_clk () {
-    mkdir -p ${1}
+    mkdir -p "${1}"
     latest_release=$(./common.sh get_latest_release "${2}" \
         "retronx-team" "sys-clk")
 
@@ -235,7 +235,7 @@ download_sys_clk () {
     rm -f "${1}/README.html"
     rm -f "${file}"
 
-    echo $(./common.sh get_version_number "${latest_release}")
+    echo "$(./common.sh get_version_number "${latest_release}")"
 }
 
 download_sys_ftpd () {
@@ -247,13 +247,13 @@ download_sys_ftpd () {
             http://bsnx.lavatech.top/sys-ftpd/\? \
     )
     latest_release=$( \
-        echo ${releases} | \
+        echo "${releases}" | \
         jq -r '.items | map(select(has("fetched") | not)) |
             sort_by(.time) | reverse | .[1].href' \
     )
     latest_release_url="http://bsnx.lavatech.top${latest_release}"
 
-    mkdir -p ${1}
+    mkdir -p "${1}"
     file=$(./common.sh download_file_url "${latest_release_url}")
 
     temp_sysftpd_directory="/tmp/$(uuidgen)"
@@ -264,7 +264,7 @@ download_sys_ftpd () {
     rm -f "${file}"
     rm -rf "${temp_sysftpd_directory}"
 
-    echo $(expr substr "${latest_release}" 20 7)
+    echo "$(expr substr "${latest_release}" 20 7)"
 }
 
 # ============================================================================

@@ -52,7 +52,7 @@ fi
 
 authenticated=0
 username_password=""
-while [ $authenticated -ne 1 ]; do
+while [ "$authenticated" -ne 1 ]; do
     prompt_login
     username_password=${func_result}
 
@@ -104,7 +104,7 @@ sys_ftpd_version=$(./modules.sh download_sys_ftpd \
     "${temp_directory}" "${username_password}")
 
 # Delete the bundle if it already exists.
-dest=$(realpath -s ${1})
+dest=$(realpath -s "${1}")
 rm -f "${dest}/Kosmos-${version_number}.zip"
 
 # Bundle everything together.

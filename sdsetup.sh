@@ -67,13 +67,13 @@ if [ $# -gt 2 ]
 then
     username_password=${2}:${3}
     authenticated=$(./common.sh test_login "${username_password}")
-    if [ $authenticated -ne 1 ]
+    if [ "$authenticated" -ne 1 ]
     then
         echo "Authentication Failed"
         exit 1
     fi
 else
-    while [ $authenticated -ne 1 ]; do
+    while [ "$authenticated" -ne 1 ]; do
         prompt_login
         username_password=${func_result}
 
@@ -133,23 +133,23 @@ fi
 
 
 # Delete some files we don't want in the output
-rm -f ${temp_directory}/must_have/hbmenu.nro
-rm -f ${temp_directory}/must_have/hekate*
+rm -f "${temp_directory}"/must_have/hbmenu.nro
+rm -f "${temp_directory}"/must_have/hekate*
 
 # Delete the output directory if it already exists.
 dest=""
 
 if [ "${auto}" != "1" ]
 then
-    dest=$(realpath -s ${1})/${version_number}
+    dest=$(realpath -s "${1}")/${version_number}
 else
-    dest=$(realpath -s ${1})
+    dest=$(realpath -s "${1}")
 fi
 
-rm -rf ${dest}
+rm -rf "${dest}"
 
 # Move temp folder files to output directory
-mv -f ${temp_directory} ${dest}
+mv -f "${temp_directory}" "${dest}"
 
 # Output some useful information.
 

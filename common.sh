@@ -29,12 +29,12 @@
 test_login () {
     response=$( \
         curl -s -H "User-Agent: Kosmos/1.0.0" \
-            -u ${1} \
+            -u "${1}" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
             https://api.github.com/ \
     )
-    message_index=$(echo ${response} | jq 'keys | index("message")')
+    message_index=$(echo "${response}" | jq 'keys | index("message")')
     if [ "${message_index}" == "null" ]
     then
         echo "1"
@@ -53,21 +53,21 @@ test_login () {
 get_latest_release () {
     if [ -z "${1}" ]
     then
-        echo $( \
+        echo "$( \
             curl -s -H "User-Agent: Kosmos/1.0.0" \
-                -u ${1} \
+                -u "${1}" \
                 -H "Content-Type: application/json" \
                 -H "Accept: application/json" \
-                https://api.github.com/repos/${2}/${3}/releases | \
+                "https://api.github.com/repos/${2}/${3}/releases" | \
             jq -r '.[0]' \
-        )
+        )"
     else
         echo $( \
             curl -s -H "User-Agent: Kosmos/1.0.0" \
-                -u ${1} \
+                -u "${1}" \
                 -H "Content-Type: application/json" \
                 -H "Accept: application/json" \
-                https://api.github.com/repos/${2}/${3}/releases | \
+                "https://api.github.com/repos/${2}/${3}/releases" | \
             jq -r '.[0]' \
         )
     fi
@@ -79,7 +79,7 @@ get_latest_release () {
 # Returns:
 #   The number of assets.
 _get_number_of_assets () {
-    return $(echo ${1} | jq -r '.assets | length')
+    return "$(echo "${1}" | jq -r '.assets | length')"
 }
 
 # Finds a specific asset in a release.
@@ -93,20 +93,20 @@ find_asset () {
     _get_number_of_assets "${1}"
     number_of_assets=${?}
 
-    for (( i=0; i<${number_of_assets}; i++ ))
+    for (( i=0; i<"${number_of_assets}"; i++ ))
     do
-        name=$(echo ${1} | jq -r ".assets[${i}].name" | tr '[:upper:]' '[:lower:]')
-        asset=$(echo ${1} | jq -r ".assets[${i}]")
+        name=$(echo "${1}" | jq -r ".assets[${i}].name" | tr '[:upper:]' '[:lower:]')
+        asset=$(echo "${1}" | jq -r ".assets[${i}]")
 
-        if [[ ${#} -eq 2 && ${name} == ${2} ]]
+        if [[ ${#} -eq 2 && ${name} == "${2}" ]]
         then
-            echo ${asset}
+            echo "${asset}"
             break
         fi
 
-        if [[ ${#} -eq 3 && ${name} == ${2} && ${name} == ${3} ]]
+        if [[ ${#} -eq 3 && ${name} == "${2}" && ${name} == "${3}" ]]
         then
-            echo ${asset}
+            echo "${asset}"
             break
         fi
     done
@@ -118,8 +118,8 @@ find_asset () {
 # Returns:
 #   The file path.
 download_file () {
-    url=$(echo ${1} | jq -r ".browser_download_url")
-    echo $(download_file_url "${url}")
+    url=$(echo "${1}" | jq -r ".browser_download_url")
+    echo "$(download_file_url "${url}")"
 }
 
 # Downloads a file from URL.
@@ -129,8 +129,8 @@ download_file () {
 #   The file path.
 download_file_url () {
     file="/tmp/$(uuidgen)"
-    curl -s -H "User-Agent: ${user_agent}" -L ${1} >> ${file}
-    echo ${file}
+    curl -s -H "User-Agent: ${user_agent}" -L "${1}" >> "${file}"
+    echo "${file}"
 }
 
 # Gets the version number from an asset.
@@ -139,7 +139,7 @@ download_file_url () {
 # Returns:
 #   The version number.
 get_version_number () {
-    echo $(echo ${1} | jq -r ".tag_name")
+    echo "$(echo "${1}" | jq -r ".tag_name")"
 }
 
 # Find path matching a pattern
@@ -149,7 +149,7 @@ get_version_number () {
 #   The first file found.
 glob () {
     files=( ${1} )
-    echo ${files[0]}
+    echo "${files[0]}"
 }
 
 # ============================================================================
