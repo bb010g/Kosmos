@@ -21,6 +21,8 @@
 # General Functions
 # ============================================================================
 
+declare -g user_agent='Kosmos/1.0.0'
+
 # Test username and password against GitHub's API
 # Params:
 #   - GitHub Login
@@ -28,7 +30,7 @@
 #   Whether it worked or not.
 test_login () {
     response=$( \
-        curl -s -H "User-Agent: Kosmos/1.0.0" \
+        curl -s -H "User-Agent: ${user_agent}" \
             -u "${1}" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
@@ -53,14 +55,14 @@ test_login () {
 get_latest_release () {
     if [ -z "${1}" ]
     then
-        curl -s -H "User-Agent: Kosmos/1.0.0" \
+        curl -s -H "User-Agent: ${user_agent}" \
             -u "${1}" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
             "https://api.github.com/repos/${2}/${3}/releases" | \
         jq -r '.[0]'
     else
-        curl -s -H "User-Agent: Kosmos/1.0.0" \
+        curl -s -H "User-Agent: ${user_agent}" \
             -u "${1}" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
@@ -138,14 +140,17 @@ get_version_number () {
     echo "${1}" | jq -r ".tag_name"
 }
 
-# Find path matching a pattern
+# First argument of the command.
 # Params:
-#   - The pattern
+#   - Any number of arguments...
 # Returns:
-#   The first file found.
-glob () {
-    files=( ${1} )
-    echo "${files[0]}"
+#   The first argument if provided, or nothing with an error of 1.
+first () {
+    if [[ -v 1 ]]; then
+        printf '%s\n' "${1}"
+    else
+        return 1
+    fi
 }
 
 # ============================================================================

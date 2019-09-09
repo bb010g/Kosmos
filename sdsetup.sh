@@ -32,7 +32,7 @@ access token and use it as your password. https://github.com/settings/tokens"
 
     read -rp "Username: (Leave blank to continue without logging in) " username
 
-    if [ ! -z "${username}" ]
+    if [ -n "${username}" ]
     then
         read -rsp "Password or personal access token:" password
         func_result="${username}:${password}"
@@ -77,7 +77,7 @@ else
         prompt_login
         username_password=${func_result}
 
-        if [ ! -z "${username_password}" ]
+        if [ -n "${username_password}" ]
         then
             authenticated=$(./common.sh test_login "${username_password}")
         else

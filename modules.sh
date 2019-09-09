@@ -17,6 +17,8 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+declare -g user_agent='Kosmos/1.0.0'
+
 # Downloads the latest Atmosphere release and extracts it.
 # Params:
 #   - Directory to extract to
@@ -65,7 +67,7 @@ download_hekate () {
     unzip -qq "${file}" -d "${1}"
     rm -f "${file}"
 
-    payload=$(./common.sh glob "${1}/hekate*.bin")
+    payload=$(./common.sh first "${1}"/hekate*.bin)
     cp "${payload}" "${1}/bootloader/update.bin"
     mkdir -p "${1}/atmosphere"
     cp "${payload}" "${1}/atmosphere/reboot_payload.bin"
@@ -240,7 +242,7 @@ download_sys_clk () {
 
 download_sys_ftpd () {
     releases=$( \
-        curl -s -H "User-Agent: Kosmos/1.0.0" \
+        curl -s -H "User-Agent: ${user_agent}" \
             -X POST \
             -H 'Content-Type: application/json' \
             -d '{"action":"get","items":{"href":"/sys-ftpd/","what":1}}' \

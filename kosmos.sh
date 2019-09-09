@@ -31,7 +31,7 @@ access token and use it as your password. https://github.com/settings/tokens"
 
     read -rp "Username: (Leave blank to continue without logging in) " username
 
-    if [ ! -z "${username}" ]
+    if [ -n "${username}" ]
     then
         read -rsp "Password or personal access token:" password
         func_result="${username}:${password}"
@@ -56,7 +56,7 @@ while [ "$authenticated" -ne 1 ]; do
     prompt_login
     username_password=${func_result}
 
-    if [ ! -z "${username_password}" ]
+    if [ -n "${username_password}" ]
     then
         authenticated=$(./common.sh test_login "${username_password}")
     else
@@ -108,10 +108,8 @@ dest=$(realpath -s "${1}")
 rm -f "${dest}/Kosmos-${version_number}.zip"
 
 # Bundle everything together.
-current_directory=${PWD}
-cd "${temp_directory}"
-zip -q -r "${dest}/Kosmos-${version_number}.zip" .
-cd "${current_directory}"
+(cd "${temp_directory}" && \
+    zip -q -r "${dest}/Kosmos-${version_number}.zip" .)
 
 # Clean up.
 rm -rf "${temp_directory}"
