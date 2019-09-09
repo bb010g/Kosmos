@@ -45,7 +45,7 @@ download_atmosphere () {
     cp "./Modules/atmosphere/system_settings.ini" \
         "${1}/atmosphere/system_settings.ini"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 # Downloads the latest Hekate release and extracts it.
@@ -74,7 +74,7 @@ download_hekate () {
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/hekate/hekate_ipl.ini" \
         >> "${1}/bootloader/hekate_ipl.ini"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_appstore () {
@@ -88,7 +88,7 @@ download_appstore () {
     mkdir -p "${1}/switch/appstore"
     mv "${file}" "${1}/switch/appstore/appstore.nro"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_edizon () {
@@ -101,7 +101,7 @@ download_edizon () {
     unzip -qq "${file}" -d "${1}"
     rm -f "${file}"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_emuiibo () {
@@ -118,7 +118,7 @@ download_emuiibo () {
     mv "${1}/titles/0100000000000352" "${1}/atmosphere/titles/"
     rm -rf "${1}/titles"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_goldleaf () {
@@ -131,7 +131,7 @@ download_goldleaf () {
     mkdir -p "${1}/switch/Goldleaf"
     mv "${file}" "${1}/switch/Goldleaf/Goldleaf.nro"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_hid_mitm () {
@@ -145,7 +145,7 @@ download_hid_mitm () {
     rm -f "${1}/atmosphere/titles/0100000000000faf/flags/boot2.flag"
     rm -f "${file}"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_kosmos_toolbox () {
@@ -161,7 +161,7 @@ download_kosmos_toolbox () {
     cp "./Modules/kosmos-toolbox/config.json" \
         "${1}/switch/KosmosToolbox/config.json"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_kosmos_updater () {
@@ -177,7 +177,7 @@ download_kosmos_updater () {
     sed "s/KOSMOS_VERSION/${2}/g" "./Modules/kosmos-updater/internal.db" \
         >> "${1}/switch/KosmosUpdater/internal.db"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_ldn_mitm () {
@@ -192,7 +192,7 @@ download_ldn_mitm () {
     rm -f "${1}/atmosphere/titles/4200000000000010/flags/boot2.flag"
     rm -f "${file}"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_lockpick () {
@@ -205,7 +205,7 @@ download_lockpick () {
     mkdir -p "${1}/switch/Lockpick"
     mv "${file}" "${1}/switch/Lockpick/Lockpick.nro"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_lockpick_rcm () {
@@ -219,7 +219,7 @@ download_lockpick_rcm () {
     mkdir -p "${1}/bootloader/payloads"
     mv "${file}" "${1}/bootloader/payloads/Lockpick_RCM.bin"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_sys_clk () {
@@ -235,7 +235,7 @@ download_sys_clk () {
     rm -f "${1}/README.html"
     rm -f "${file}"
 
-    echo "$(./common.sh get_version_number "${latest_release}")"
+    ./common.sh get_version_number "${latest_release}"
 }
 
 download_sys_ftpd () {
@@ -264,7 +264,7 @@ download_sys_ftpd () {
     rm -f "${file}"
     rm -rf "${temp_sysftpd_directory}"
 
-    echo "$(expr substr "${latest_release}" 20 7)"
+    expr substr "${latest_release}" 20 7
 }
 
 # ============================================================================

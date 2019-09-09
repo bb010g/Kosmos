@@ -53,23 +53,19 @@ test_login () {
 get_latest_release () {
     if [ -z "${1}" ]
     then
-        echo "$( \
-            curl -s -H "User-Agent: Kosmos/1.0.0" \
-                -u "${1}" \
-                -H "Content-Type: application/json" \
-                -H "Accept: application/json" \
-                "https://api.github.com/repos/${2}/${3}/releases" | \
-            jq -r '.[0]' \
-        )"
+        curl -s -H "User-Agent: Kosmos/1.0.0" \
+            -u "${1}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            "https://api.github.com/repos/${2}/${3}/releases" | \
+        jq -r '.[0]'
     else
-        echo $( \
-            curl -s -H "User-Agent: Kosmos/1.0.0" \
-                -u "${1}" \
-                -H "Content-Type: application/json" \
-                -H "Accept: application/json" \
-                "https://api.github.com/repos/${2}/${3}/releases" | \
-            jq -r '.[0]' \
-        )
+        curl -s -H "User-Agent: Kosmos/1.0.0" \
+            -u "${1}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            "https://api.github.com/repos/${2}/${3}/releases" | \
+        jq -r '.[0]'
     fi
 }
 
@@ -119,7 +115,7 @@ find_asset () {
 #   The file path.
 download_file () {
     url=$(echo "${1}" | jq -r ".browser_download_url")
-    echo "$(download_file_url "${url}")"
+    download_file_url "${url}"
 }
 
 # Downloads a file from URL.
@@ -139,7 +135,7 @@ download_file_url () {
 # Returns:
 #   The version number.
 get_version_number () {
-    echo "$(echo "${1}" | jq -r ".tag_name")"
+    echo "${1}" | jq -r ".tag_name"
 }
 
 # Find path matching a pattern
