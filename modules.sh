@@ -264,7 +264,7 @@ download_sys_ftpd () {
     rm -f "${file}"
     rm -rf "${temp_sysftpd_directory}"
 
-    expr substr "${latest_release}" 20 7
+    printf '%s\n' "${latest_release:20:7}"
 }
 
 # ============================================================================

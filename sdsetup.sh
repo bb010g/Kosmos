@@ -30,11 +30,11 @@ can continue without logging in, but you may run into rate limits. If you \
 use two-factor authentication then you will need to generate a personal \
 access token and use it as your password. https://github.com/settings/tokens"
 
-    read -p "Username: (Leave blank to continue without logging in) " username
+    read -rp "Username: (Leave blank to continue without logging in) " username
 
     if [ ! -z "${username}" ]
     then
-        read -sp "Password or personal access token:" password
+        read -rsp "Password or personal access token:" password
         func_result="${username}:${password}"
     else
         func_result=""
